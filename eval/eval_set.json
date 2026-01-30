@@ -1,0 +1,27 @@
+[
+  {
+    "query": "How do I install the platform CLI?",
+    "expected_topics": ["pip", "install", "CLI"],
+    "expected_sources": ["docs-getting-started.md"]
+  },
+  {
+    "query": "What is the API base URL and how do I authenticate?",
+    "expected_topics": ["api", "Bearer", "token", "v1"],
+    "expected_sources": ["docs-api-reference.md"]
+  },
+  {
+    "query": "How do I reset my password?",
+    "expected_topics": ["password", "reset", "account", "email"],
+    "expected_sources": ["docs-faq.md"]
+  },
+  {
+    "query": "What file formats are supported for datasets?",
+    "expected_topics": ["CSV", "Parquet", "formats", "upload"],
+    "expected_sources": ["docs-faq.md"]
+  },
+  {
+    "query": "How do I create a project and upload a dataset?",
+    "expected_topics": ["project", "dataset", "create", "upload"],
+    "expected_sources": ["docs-getting-started.md"]
+  }
+]
