@@ -78,6 +78,8 @@ cp .env.example .env
 
 ## Free LLM: Groq (recommended)
 
+To get access to the AI set up for the evaluation tests in this repo, **ask me for the API key** — I will send it privately (e.g. by email).
+
 1. Go to **https://console.groq.com** and sign up (email or GitHub).
 2. Create an API key in the console.
 3. In `.env` set: `GROQ_API_KEY=gsk_your_key_here`
