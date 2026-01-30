@@ -9,10 +9,10 @@ This repo is delivered as **runnable** with README instructions covering:
 | Requirement | Where |
 |-------------|--------|
 | **Dependencies** | [Requirements](#requirements) and [Setup](#setup): `requirements.txt`, Python 3.10+, `pip install -r requirements.txt`. |
-| **Environment variables** | [Environment Variables](#environment-variables) and `.env.example`: copy to `.env` and set **your own** `GROQ_API_KEY` (or `OPENAI_API_KEY`). No API key is committed; the app uses the key of whoever runs it. |
+| **Environment variables** | [Environment Variables](#environment-variables) and `.env.example`: copy to `.env`. **Ask me for the API key** — I will send it privately; set it as `GROQ_API_KEY=...` in `.env`. |
 | **How to execute locally** | [Run Locally](#run-locally): (1) `python -m app.ingest`, (2) `streamlit run app/chat_ui.py`, then open http://localhost:8501. |
 
-**LLM / API key:** I ask evaluators to use **my API key** to run the app. I will send it **privately** (e.g. by email or secure channel). Put it in `.env` as `GROQ_API_KEY=...` (see [Environment Variables](#environment-variables)). If you prefer to use your own key, get a free one at [console.groq.com](https://console.groq.com) and set it in `.env`.
+**LLM / API key:** To run the app with the AI used for the evaluation tests, **ask me for the API key** — I will send it privately (e.g. by email or secure channel). Put it in `.env` as `GROQ_API_KEY=...` (see [Environment Variables](#environment-variables)).
 
 **Stack:** Python, LangChain, ChromaDB, sentence-transformers, Streamlit, Groq/OpenAI. See [Project Layout](#project-layout) and [Design Notes](#design-notes).
 
@@ -49,7 +49,6 @@ The task has two parts: **core RAG** and **evaluation focus (Eval)**.
 |------|-------------|----------------|
 | **README** | Run instructions. | This file: Setup, Run Locally, Tests, Eval. |
 | **requirements.txt** | Dependencies. | `requirements.txt`. |
-| **Dockerfile** | (Optional but recommended.) | `Dockerfile` — see below. |
 
 ## Features
 
@@ -63,7 +62,7 @@ The task has two parts: **core RAG** and **evaluation focus (Eval)**.
 ## Requirements
 
 - Python 3.10+
-- **Free LLM:** Groq API key (no card) or Ollama (local). Optional: OpenAI.
+- **LLM access:** Ask me for the API key (I will send it privately). Put it in `.env` as `GROQ_API_KEY=...`.
 
 ## Setup
 
@@ -73,23 +72,21 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
-# For free real answers: get a key at https://console.groq.com and set GROQ_API_KEY in .env
+# Ask the author for the API key; set GROQ_API_KEY=... in .env
 ```
 
 ## Free LLM: Groq (recommended)
 
 To get access to the AI set up for the evaluation tests in this repo, **ask me for the API key** — I will send it privately (e.g. by email).
 
-1. Go to **https://console.groq.com** and sign up (email or GitHub).
-2. Create an API key in the console.
-3. In `.env` set: `GROQ_API_KEY=gsk_your_key_here`
-4. Restart Streamlit. Answers will use Groq (free tier, no credit card).
+1. Put the key I sent you in `.env` as: `GROQ_API_KEY=gsk_...`
+2. Restart Streamlit. Answers will use Groq (free tier).
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `GROQ_API_KEY` | **Free.** If set, used first for LLM (get key at console.groq.com). |
+| `GROQ_API_KEY` | **Ask the author for the key** (sent privately). If set, used for LLM. |
 | `OPENAI_API_KEY` | Optional. Used if GROQ not set; requires billing. |
 | `OLLAMA_BASE_URL` | Optional. If Ollama runs locally, e.g. `http://localhost:11434` |
 | `CHROMA_PERSIST_DIR` | Optional. Default: `./chroma_data` |
@@ -145,7 +142,6 @@ rag-pipeline-prototype/
 │   └── test_e2e.py
 ├── requirements.txt
 ├── .env.example
-├── Dockerfile
 └── README.md
 ```
 
@@ -189,17 +185,6 @@ You can extend `eval_set.json` with more queries and expected values to better r
 - **Chunking**: Recursive character splitter; chunk size and overlap can be tuned in `app/ingest.py`.
 - **Embeddings**: Local by default (sentence-transformers) so the pipeline runs without extra API keys for indexing.
 - **LLM**: Groq (free, no card) first; then OpenAI or local Ollama. Without any key, the app shows a stub response so UI and retrieval still work.
-- **Containers**: Optional `Dockerfile` included. Build: `docker build -t rag-pipeline .` — run ingest (or mount `chroma_data/`) then start Streamlit; see comments in Dockerfile.
-
-## Docker (optional)
-
-```bash
-docker build -t rag-pipeline .
-# First time: run ingest to build vector store (e.g. mount content/ and chroma_data/)
-docker run -p 8501:8501 -e GROQ_API_KEY=gsk_... rag-pipeline
-```
-
-Open http://localhost:8501. To pre-build the index, run `python -m app.ingest` in a container with `content/` and persist `chroma_data/` (volume or bind mount).
 
 ## License
 
