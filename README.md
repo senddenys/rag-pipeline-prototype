@@ -2,6 +2,41 @@
 
 Minimal Retrieval-Augmented Generation (RAG) application with **evaluation** focus: ingestion, chunking, embeddings, vector search (ChromaDB), and LLM synthesis with citations. Includes unit tests, E2E tests, and a simple eval setup to assess accuracy of returned content.
 
+## Що треба зробити (Task Overview)
+
+Завдання складається з двох частин: **стандартний RAG** та **акцент на тестуванні/оцінці (Eval)**.
+
+### 1. Основний RAG (Core)
+
+| Пункт | Опис | Реалізація |
+|-------|------|------------|
+| **Ingestion** | Скрипт для зчитування даних (PDF, txt або md). | `app/ingest.py` — DirectoryLoader для `.md` з `content/`. |
+| **Chunking** | Розбити текст на частини (chunks). | RecursiveCharacterTextSplitter у `app/ingest.py`. |
+| **Embedding & Store** | Вектори (embeddings) і збереження у простій базі (ChromaDB/FAISS). | `app/retrieval.py` — sentence-transformers, ChromaDB у `chroma_data/`. |
+| **Retrieval & Synthesis** | Пошук схожих чанків + передача в LLM для відповіді з цитуванням. | `app/retrieval.py` (retrieve), `app/synthesis.py` (Groq/OpenAI/Ollama). |
+
+### 2. UI (Інтерфейс)
+
+| Пункт | Опис | Реалізація |
+|-------|------|------------|
+| **Простий веб-інтерфейс** | Поле вводу + вікно чату (Streamlit або Gradio). | `app/chat_ui.py` — Streamlit, один інпут і область відповіді. |
+
+### 3. Eval & Tests (Ключова вимога)
+
+| Пункт | Опис | Реалізація |
+|-------|------|------------|
+| **Unit Tests** | Тести для окремих функцій (chunking, підключення до бази). | `tests/test_ingest.py`, `tests/test_retrieval.py`. |
+| **E2E Test** | Повний цикл: Запит → Пошук → Відповідь LLM. | `tests/test_e2e.py` — synthesize з контекстом і citations. |
+| **RAG Evaluation (Accuracy)** | Golden Dataset (5–10 питань + еталон), скрипт порівняння (ключові слова або LLM-суддя). | `eval/eval_set.json` (5 питань), `eval/run_eval.py` — retrieval precision/recall, answer hit (ключові слова). |
+
+### 4. Інфраструктура
+
+| Пункт | Опис | Реалізація |
+|-------|------|------------|
+| **README** | Інструкція запуску. | Цей файл: Setup, Run Locally, Tests, Eval. |
+| **requirements.txt** | Залежності. | `requirements.txt`. |
+| **Dockerfile** | (Опціонально, але бажано.) | `Dockerfile` — див. нижче. |
+
 ## Features
 
 - **Ingestion & chunking** — Load Markdown/PDF, split into chunks
@@ -94,6 +129,7 @@ rag-pipeline-prototype/
 │   └── test_e2e.py
 ├── requirements.txt
 ├── .env.example
+├── Dockerfile
 └── README.md
 ```
 
@@ -118,7 +154,17 @@ You can extend `eval_set.json` with more queries and expected values to better r
 - **Chunking**: Recursive character splitter; chunk size and overlap can be tuned in `app/ingest.py`.
 - **Embeddings**: Local by default (sentence-transformers) so the pipeline runs without extra API keys for indexing.
 - **LLM**: Groq (free, no card) first; then OpenAI or local Ollama. Without any key, the app shows a stub response so UI and retrieval still work.
-- **Containers**: Back-end can be containerized later (e.g. Dockerfile for `app/ingest` + `streamlit run`); not required for this prototype.
+- **Containers**: Optional `Dockerfile` included. Build: `docker build -t rag-pipeline .` — run ingest (or mount `chroma_data/`) then start Streamlit; see comments in Dockerfile.
+
+## Docker (optional)
+
+```bash
+docker build -t rag-pipeline .
+# First time: run ingest to build vector store (e.g. mount content/ and chroma_data/)
+docker run -p 8501:8501 -e GROQ_API_KEY=gsk_... rag-pipeline
+```
+
+Open http://localhost:8501. To pre-build the index, run `python -m app.ingest` in a container with `content/` and persist `chroma_data/` (volume or bind mount).
 
 ## License
 

@@ -1,25 +1,37 @@
 """
 Ingestion and chunking of content.
-Loads Markdown (and optionally PDF) from content/, chunks, and builds ChromaDB.
+Loads Markdown and PDF from content/, chunks, and builds ChromaDB.
 """
 from pathlib import Path
 
-from langchain_community.document_loaders import DirectoryLoader, TextLoader
+from langchain_community.document_loaders import DirectoryLoader, TextLoader, PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
 
 from app.config import CHROMA_PERSIST_DIR, CONTENT_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 from app.retrieval import get_embedding_model, get_vector_store
 
 
-def _get_loader():
-    """Load .md and .txt from content/."""
-    return DirectoryLoader(
+def _load_documents():
+    """Load .md and .pdf from content/. Returns list of Document."""
+    documents: list[Document] = []
+
+    # Markdown
+    md_loader = DirectoryLoader(
         str(CONTENT_DIR),
         glob="**/*.md",
         loader_cls=TextLoader,
         loader_kwargs={"encoding": "utf-8"},
         show_progress=True,
     )
+    documents.extend(md_loader.load())
+
+    # PDF
+    for pdf_path in CONTENT_DIR.rglob("*.pdf"):
+        loader = PyPDFLoader(str(pdf_path))
+        documents.extend(loader.load())
+
+    return documents
 
 
 def chunk_documents(documents):
@@ -38,8 +50,7 @@ def run_ingest():
     if not CONTENT_DIR.exists():
         raise FileNotFoundError(f"Content directory not found: {CONTENT_DIR}")
 
-    loader = _get_loader()
-    documents = loader.load()
+    documents = _load_documents()
     if not documents:
         raise ValueError(f"No documents found in {CONTENT_DIR}")
 

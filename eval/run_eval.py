@@ -91,6 +91,7 @@ def run_eval(use_llm: bool = False) -> dict:
 
         results.append({
             "query": query,
+            "answer": answer,
             "retrieval_precision": precision,
             "retrieval_recall": recall,
             "retrieval_hit": retrieval_hit,
@@ -114,10 +115,12 @@ def main():
     print("=== Eval summary ===")
     for k, v in out["summary"].items():
         print(f"  {k}: {v}")
-    print("\n=== Per-query ===")
-    for r in out["results"]:
+    print("\n=== Per-query (question + answer) ===")
+    for i, r in enumerate(out["results"], 1):
         q = r["query"]
-        print(f"  Q: {q[:60]}{'...' if len(q) > 60 else ''}")
+        a = r.get("answer", "")
+        print(f"\n--- [{i}] Q: {q}")
+        print(f"     A: {a[:800]}{'...' if len(a) > 800 else ''}")
         print(f"     retrieval P/R: {r['retrieval_precision']:.2f} / {r['retrieval_recall']:.2f}  hit={r['retrieval_hit']}  answer_hit={r['answer_hit']}")
     return 0
 

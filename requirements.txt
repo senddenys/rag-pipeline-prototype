@@ -20,5 +20,8 @@ python-dotenv>=1.0.0
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
 
+# PDF loading
+pypdf>=3.0.0
+
 # Eval / utilities
 httpx>=0.25.0
