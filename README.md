@@ -12,7 +12,7 @@ This repo is delivered as **runnable** with README instructions covering:
 | **Environment variables** | [Environment Variables](#environment-variables) and `.env.example`: copy to `.env` and set **your own** `GROQ_API_KEY` (or `OPENAI_API_KEY`). No API key is committed; the app uses the key of whoever runs it. |
 | **How to execute locally** | [Run Locally](#run-locally): (1) `python -m app.ingest`, (2) `streamlit run app/chat_ui.py`, then open http://localhost:8501. |
 
-**LLM / API key:** The project is **not** tied to the author’s key. Whoever clones the repo adds **their own** key in `.env` (e.g. a free [Groq](https://console.groq.com) key). That keeps the repo reproducible and secure: you run it with your key, the evaluator runs it with theirs.
+**LLM / API key:** I ask evaluators to use **my API key** to run the app. I will send it **privately** (e.g. by email or secure channel). Put it in `.env` as `GROQ_API_KEY=...` (see [Environment Variables](#environment-variables)). If you prefer to use your own key, get a free one at [console.groq.com](https://console.groq.com) and set it in `.env`.
 
 **Stack:** Python, LangChain, ChromaDB, sentence-transformers, Streamlit, Groq/OpenAI. See [Project Layout](#project-layout) and [Design Notes](#design-notes).
 
