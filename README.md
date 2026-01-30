@@ -2,40 +2,54 @@
 
 Minimal Retrieval-Augmented Generation (RAG) application with **evaluation** focus: ingestion, chunking, embeddings, vector search (ChromaDB), and LLM synthesis with citations. Includes unit tests, E2E tests, and a simple eval setup to assess accuracy of returned content.
 
-## Що треба зробити (Task Overview)
+## Deliverable: Runnable Repo
 
-Завдання складається з двох частин: **стандартний RAG** та **акцент на тестуванні/оцінці (Eval)**.
+This repo is delivered as **runnable** with README instructions covering:
 
-### 1. Основний RAG (Core)
+| Requirement | Where |
+|-------------|--------|
+| **Dependencies** | [Requirements](#requirements) and [Setup](#setup): `requirements.txt`, Python 3.10+, `pip install -r requirements.txt`. |
+| **Environment variables** | [Environment Variables](#environment-variables) and `.env.example`: copy to `.env` and set **your own** `GROQ_API_KEY` (or `OPENAI_API_KEY`). No API key is committed; the app uses the key of whoever runs it. |
+| **How to execute locally** | [Run Locally](#run-locally): (1) `python -m app.ingest`, (2) `streamlit run app/chat_ui.py`, then open http://localhost:8501. |
 
-| Пункт | Опис | Реалізація |
-|-------|------|------------|
-| **Ingestion** | Скрипт для зчитування даних (PDF, txt або md). | `app/ingest.py` — DirectoryLoader для `.md` з `content/`. |
-| **Chunking** | Розбити текст на частини (chunks). | RecursiveCharacterTextSplitter у `app/ingest.py`. |
-| **Embedding & Store** | Вектори (embeddings) і збереження у простій базі (ChromaDB/FAISS). | `app/retrieval.py` — sentence-transformers, ChromaDB у `chroma_data/`. |
-| **Retrieval & Synthesis** | Пошук схожих чанків + передача в LLM для відповіді з цитуванням. | `app/retrieval.py` (retrieve), `app/synthesis.py` (Groq/OpenAI/Ollama). |
+**LLM / API key:** The project is **not** tied to the author’s key. Whoever clones the repo adds **their own** key in `.env` (e.g. a free [Groq](https://console.groq.com) key). That keeps the repo reproducible and secure: you run it with your key, the evaluator runs it with theirs.
 
-### 2. UI (Інтерфейс)
+**Stack:** Python, LangChain, ChromaDB, sentence-transformers, Streamlit, Groq/OpenAI. See [Project Layout](#project-layout) and [Design Notes](#design-notes).
 
-| Пункт | Опис | Реалізація |
-|-------|------|------------|
-| **Простий веб-інтерфейс** | Поле вводу + вікно чату (Streamlit або Gradio). | `app/chat_ui.py` — Streamlit, один інпут і область відповіді. |
+## Task Overview
 
-### 3. Eval & Tests (Ключова вимога)
+The task has two parts: **core RAG** and **evaluation focus (Eval)**.
 
-| Пункт | Опис | Реалізація |
-|-------|------|------------|
-| **Unit Tests** | Тести для окремих функцій (chunking, підключення до бази). | `tests/test_ingest.py`, `tests/test_retrieval.py`. |
-| **E2E Test** | Повний цикл: Запит → Пошук → Відповідь LLM. | `tests/test_e2e.py` — synthesize з контекстом і citations. |
-| **RAG Evaluation (Accuracy)** | Golden Dataset (5–10 питань + еталон), скрипт порівняння (ключові слова або LLM-суддя). | `eval/eval_set.json` (5 питань), `eval/run_eval.py` — retrieval precision/recall, answer hit (ключові слова). |
+### 1. Core RAG
 
-### 4. Інфраструктура
+| Item | Description | Implementation |
+|------|-------------|----------------|
+| **Ingestion** | Script to load data (PDF, txt or md). | `app/ingest.py` — DirectoryLoader for `.md`, PyPDFLoader for PDFs in `content/`. |
+| **Chunking** | Split text into chunks. | RecursiveCharacterTextSplitter in `app/ingest.py`. |
+| **Embedding & Store** | Embeddings and storage in a simple vector store (ChromaDB/FAISS). | `app/retrieval.py` — sentence-transformers, ChromaDB in `chroma_data/`. |
+| **Retrieval & Synthesis** | Similarity search over chunks + pass to LLM for answer with citations. | `app/retrieval.py` (retrieve), `app/synthesis.py` (Groq/OpenAI/Ollama). |
 
-| Пункт | Опис | Реалізація |
-|-------|------|------------|
-| **README** | Інструкція запуску. | Цей файл: Setup, Run Locally, Tests, Eval. |
-| **requirements.txt** | Залежності. | `requirements.txt`. |
-| **Dockerfile** | (Опціонально, але бажано.) | `Dockerfile` — див. нижче. |
+### 2. UI
+
+| Item | Description | Implementation |
+|------|-------------|----------------|
+| **Simple web UI** | Input field + chat area (Streamlit or Gradio). | `app/chat_ui.py` — Streamlit, single input and response area. |
+
+### 3. Eval & Tests (Key requirement)
+
+| Item | Description | Implementation |
+|------|-------------|----------------|
+| **Unit Tests** | Tests for individual functions (chunking, DB connection). | `tests/test_ingest.py`, `tests/test_retrieval.py`. |
+| **E2E Test** | Full cycle: Query → Retrieval → LLM answer. | `tests/test_e2e.py` — synthesize with context and citations. |
+| **RAG Evaluation (Accuracy)** | Golden dataset (questions + reference), comparison script (keywords or LLM-as-judge). | `eval/eval_set.json` (10 questions), `eval/run_eval.py` — retrieval precision/recall, answer hit (keywords). |
+
+### 4. Infrastructure
+
+| Item | Description | Implementation |
+|------|-------------|----------------|
+| **README** | Run instructions. | This file: Setup, Run Locally, Tests, Eval. |
+| **requirements.txt** | Dependencies. | `requirements.txt`. |
+| **Dockerfile** | (Optional but recommended.) | `Dockerfile` — see below. |
 
 ## Features
 
