@@ -107,6 +107,22 @@ To get access to the AI set up for the evaluation tests in this repo, **ask me f
 
    Open the URL shown (e.g. http://localhost:8501). Type a question and get a response with cited chunks.
 
+### Run with Docker
+
+Optional: run the app in a container. Build and run:
+
+```bash
+docker build -t rag-pipeline .
+docker run -p 8501:8501 -e GROQ_API_KEY=your_key rag-pipeline
+```
+
+Streamlit will be available at http://localhost:8501. To build the vector store first, run ingest once:  
+`docker run -e GROQ_API_KEY=... rag-pipeline python -m app.ingest` (e.g. with a volume for `chroma_data`), then start the UI as above.
+
+### .gitignore
+
+The repo ignores: `.venv/`, `venv/`, `.env`, `chroma_data/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `.coverage`, `htmlcov/`. Copy `.env.example` to `.env` and add your API key; `.env` is not committed.
+
 ## Running Tests
 
 - **Unit + E2E tests:**
@@ -118,9 +134,10 @@ To get access to the AI set up for the evaluation tests in this repo, **ask me f
 - **Evaluation (accuracy of retrieval/answers):**
 
   ```bash
-  python -m eval.run_eval           # stub answers (no LLM)
-  python -m eval.run_eval --llm     # real LLM (Groq/OpenAI)
-  python -m eval.run_eval --save    # write results to eval/results/latest.json and latest.md
+  python -m eval.run_eval              # stub answers (no LLM)
+  python -m eval.run_eval --llm        # real LLM (Groq/OpenAI)
+  python -m eval.run_eval --save       # write results to eval/results/latest.json and latest.md
+  python -m eval.run_eval --llm --save # LLM + save results
   ```
 
   Uses `eval/eval_set.json` and prints retrieval/answer metrics plus latency. See [Eval](#evaluation) and [Eval test cases](#eval-test-cases) below.
@@ -130,6 +147,7 @@ To get access to the AI set up for the evaluation tests in this repo, **ask me f
 ```
 rag-pipeline-prototype/
 ├── app/
+│   ├── config.py       # Paths, env (CHROMA_PERSIST_DIR, EVAL_SET_PATH, GROQ_API_KEY, etc.)
 │   ├── ingest.py       # Load & chunk content, build ChromaDB
 │   ├── retrieval.py    # Embeddings, vector store, retrieval
 │   ├── synthesis.py    # LLM synthesis with citations
@@ -140,9 +158,13 @@ rag-pipeline-prototype/
 │   ├── run_eval.py     # Eval script
 │   └── results/        # latest.json, latest.md (after --save)
 ├── tests/
+│   ├── conftest.py     # Fixtures (sample_docs, vector_store_with_docs)
 │   ├── test_ingest.py
 │   ├── test_retrieval.py
 │   └── test_e2e.py
+├── .streamlit/         # Streamlit config
+├── .gitignore         # Ignore .venv, .env, chroma_data/, __pycache__, .pytest_cache, etc.
+├── Dockerfile         # Optional: run app in container (Streamlit on :8501)
 ├── requirements.txt
 ├── .env.example
 └── README.md
